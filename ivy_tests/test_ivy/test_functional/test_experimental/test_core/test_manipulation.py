@@ -184,6 +184,36 @@ def _get_dtype_values_k_axes_for_rot90(
 
 
 @st.composite
+def roll_input_strategy(draw):
+    dtype = draw(st.sampled_from(['int32', 'int64', 'bool']))
+
+    shape = draw(
+        st.tuples(
+            st.integers(min_value=1, max_value=10),
+            st.integers(min_value=1, max_value=10),
+        )
+    )
+
+    if dtype in ['int32', 'int64']:
+        data = draw(st.lists(st.integers(), min_size=shape[0] * shape[1], max_size=shape[0] * shape[1]))
+    else:
+        data = draw(st.lists(st.booleans(), min_size=shape[0] * shape[1], max_size=shape[0] * shape[1]))
+
+    data = np.array(data).reshape(shape)
+    shifts = draw(st.integers(min_value=-10, max_value=10))
+
+    axis = draw(
+        st.lists(
+            st.integers(min_value=0, max_value=1),
+            min_size=2,
+            max_size=2,
+            unique=True,
+        )
+    )
+
+    return dtype, data, shifts, axis
+
+@st.composite
 def _matricize_data(draw):
     input_dtype, input, shape = draw(
         helpers.dtype_and_values(

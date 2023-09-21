@@ -11,6 +11,7 @@ from ivy.functional.frontends.paddle import Tensor
 from ivy_tests.test_ivy.helpers import handle_frontend_method
 from ivy_tests.test_ivy.test_functional.test_experimental.test_core.test_manipulation import (  # noqa E501
     _get_dtype_values_k_axes_for_rot90,
+    roll_input_strategy,
 )
 from ivy_tests.test_ivy.test_functional.test_core.test_statistical import (
     _statistical_dtype_values,
@@ -3878,19 +3879,15 @@ def test_paddle_tensor_zero_(
         on_device=on_device,
     )
 
-# rank
+#roll
 @handle_frontend_method(
     class_tree=CLASS_TREE,
     init_tree="paddle.to_tensor",
-    method_name="rank",
-    dtype_and_x=helpers.dtype_and_values(
-        available_dtypes=helpers.get_dtypes("float"),
-        num_arrays=2,
-        shared_dtype=True,
-    ),
+    method_name="roll",
+    dtype_value=roll_input_strategy(),
 )
-def test_paddle_tensor_rank(
-    dtype_and_x,
+def test_paddle_tensor_roll(
+    dtype_value,
     frontend_method_data,
     init_flags,
     method_flags,
@@ -3898,15 +3895,19 @@ def test_paddle_tensor_rank(
     on_device,
     backend_fw,
 ):
-    input_dtype, x = dtype_and_x
+    input_dtype, data, shifts, axes = dtype_value
+
     helpers.test_frontend_method(
         init_input_dtypes=input_dtype,
         backend_to_test=backend_fw,
         init_all_as_kwargs_np={
-            "data": x[0],
+            "data": data,
         },
         method_input_dtypes=input_dtype,
-        method_all_as_kwargs_np={},
+        method_all_as_kwargs_np={
+            "shifts": shifts,
+            "axis": axes,
+        },
         frontend_method_data=frontend_method_data,
         init_flags=init_flags,
         method_flags=method_flags,
