@@ -13571,7 +13571,7 @@ def test_torch_unique_consecutive(
         on_device=on_device,
     )
 
-# is_complex
+# is_floating
 @handle_frontend_method(
     class_tree=CLASS_TREE,
     init_tree="torch.tensor",
